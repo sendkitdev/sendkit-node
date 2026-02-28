@@ -1,7 +1,7 @@
 import { Emails } from './emails/emails';
 import type { ErrorResponse, Response } from './interfaces';
 
-const defaultBaseUrl = 'https://api.sendkit.com';
+const defaultBaseUrl = 'https://api.sendkit.dev';
 
 export class SendKit {
   private readonly baseUrl: string;
