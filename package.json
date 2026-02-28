@@ -42,5 +42,9 @@
     "api",
     "sdk"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sendkitdev/sendkit-node"
+  },
   "license": "MIT"
 }
