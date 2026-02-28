@@ -5,7 +5,7 @@ Official Node.js SDK for the [SendKit](https://sendkit.com) email API.
 ## Installation
 
 ```bash
-npm install sendkit
+npm install @sendkit/sdk
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install sendkit
 ### Create a Client
 
 ```typescript
-import { SendKit } from 'sendkit';
+import { SendKit } from '@sendkit/sdk';
 
 const sendkit = new SendKit('sk_your_api_key');
 ```

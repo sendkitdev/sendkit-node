@@ -1,5 +1,5 @@
 {
-  "name": "sendkit",
+  "name": "@sendkit/sdk",
   "version": "0.1.0",
   "description": "Node.js SDK for the SendKit email API",
   "main": "./dist/index.cjs",
