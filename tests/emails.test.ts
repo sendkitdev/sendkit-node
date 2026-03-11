@@ -47,7 +47,7 @@ describe('Emails', () => {
 
     expect(mockFetch).toHaveBeenCalledOnce();
     const [url, options] = mockFetch.mock.calls[0];
-    expect(url).toBe('https://api.sendkit.dev/v1/emails');
+    expect(url).toBe('https://api.sendkit.dev/emails');
     expect(options.method).toBe('POST');
     expect(options.headers.Authorization).toBe('Bearer sk_test_123');
 
@@ -95,7 +95,7 @@ describe('Emails', () => {
     expect(data).toEqual({ id: 'mime-uuid-789' });
 
     const [url, options] = mockFetch.mock.calls[0];
-    expect(url).toBe('https://api.sendkit.dev/v1/emails/mime');
+    expect(url).toBe('https://api.sendkit.dev/emails/mime');
 
     const body = JSON.parse(options.body);
     expect(body.envelope_from).toBe('sender@example.com');
@@ -165,6 +165,6 @@ describe('Emails', () => {
     });
 
     const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe('https://custom.api.com/v1/emails');
+    expect(url).toBe('https://custom.api.com/emails');
   });
 });

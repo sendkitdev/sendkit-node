@@ -11,7 +11,7 @@ export class Emails {
   constructor(private readonly sendkit: SendKit) {}
 
   async send(payload: SendEmailOptions): Promise<Response<SendEmailResponse>> {
-    return this.sendkit.post<SendEmailResponse>('/v1/emails', {
+    return this.sendkit.post<SendEmailResponse>('/emails', {
       from: payload.from,
       to: payload.to,
       subject: payload.subject,
@@ -30,7 +30,7 @@ export class Emails {
   async sendMime(
     payload: SendMimeEmailOptions,
   ): Promise<Response<SendMimeEmailResponse>> {
-    return this.sendkit.post<SendMimeEmailResponse>('/v1/emails/mime', {
+    return this.sendkit.post<SendMimeEmailResponse>('/emails/mime', {
       envelope_from: payload.envelopeFrom,
       envelope_to: payload.envelopeTo,
       raw_message: payload.rawMessage,
