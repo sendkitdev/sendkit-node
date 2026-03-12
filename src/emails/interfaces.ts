@@ -12,7 +12,7 @@ export interface SendEmailOptions {
   text?: string;
   cc?: string | string[];
   bcc?: string | string[];
-  replyTo?: string;
+  replyTo?: string | string[];
   headers?: Record<string, string>;
   tags?: { name: string; value: string }[];
   scheduledAt?: string;

@@ -19,7 +19,7 @@ export class Emails {
       text: payload.text,
       cc: typeof payload.cc === 'string' ? [payload.cc] : payload.cc,
       bcc: typeof payload.bcc === 'string' ? [payload.bcc] : payload.bcc,
-      reply_to: payload.replyTo,
+      reply_to: typeof payload.replyTo === 'string' ? [payload.replyTo] : payload.replyTo,
       headers: payload.headers,
       tags: payload.tags,
       scheduled_at: payload.scheduledAt,

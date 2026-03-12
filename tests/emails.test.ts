@@ -74,7 +74,7 @@ describe('Emails', () => {
     });
 
     const body = JSON.parse(mockFetch.mock.calls[0][1].body);
-    expect(body.reply_to).toBe('reply@example.com');
+    expect(body.reply_to).toEqual(['reply@example.com']);
     expect(body.scheduled_at).toBe('2026-03-01T10:00:00Z');
   });
 
@@ -206,6 +206,44 @@ describe('Emails', () => {
     expect(body.bcc).toEqual(['bcc@example.com']);
   });
 
+  it('normalizes single-string replyTo to array', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'reply-to-string-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      replyTo: 'reply@example.com',
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.reply_to).toEqual(['reply@example.com']);
+  });
+
+  it('passes replyTo array as-is', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'reply-to-array-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      replyTo: ['reply1@example.com', 'reply2@example.com'],
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.reply_to).toEqual(['reply1@example.com', 'reply2@example.com']);
+  });
+
   it('normalizes single-string cc and bcc to arrays', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -225,6 +263,25 @@ describe('Emails', () => {
     const body = JSON.parse(mockFetch.mock.calls[0][1].body);
     expect(body.cc).toEqual(['cc@example.com']);
     expect(body.bcc).toEqual(['bcc@example.com']);
+  });
+
+  it('sends bcc as an array', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'bcc-array-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      bcc: ['bcc1@example.com', 'bcc2@example.com'],
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.bcc).toEqual(['bcc1@example.com', 'bcc2@example.com']);
   });
 
   it('sends with custom headers', async () => {
