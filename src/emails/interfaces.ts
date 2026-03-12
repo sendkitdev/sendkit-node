@@ -14,7 +14,7 @@ export interface SendEmailOptions {
   bcc?: string | string[];
   replyTo?: string;
   headers?: Record<string, string>;
-  tags?: string[];
+  tags?: { name: string; value: string }[];
   scheduledAt?: string;
   attachments?: Attachment[];
 }

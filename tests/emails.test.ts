@@ -148,6 +148,193 @@ describe('Emails', () => {
     expect(error?.statusCode).toBeNull();
   });
 
+  it('sends to multiple recipients', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'multi-to-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: ['alice@example.com', 'bob@example.com'],
+      subject: 'Test',
+      html: '<p>Hi</p>',
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.to).toEqual(['alice@example.com', 'bob@example.com']);
+  });
+
+  it('sends a plain text email', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'text-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      text: 'Hello, plain text!',
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.text).toBe('Hello, plain text!');
+    expect(body.html).toBeUndefined();
+  });
+
+  it('sends with cc and bcc', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'cc-bcc-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      cc: ['cc1@example.com', 'cc2@example.com'],
+      bcc: 'bcc@example.com',
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.cc).toEqual(['cc1@example.com', 'cc2@example.com']);
+    expect(body.bcc).toEqual(['bcc@example.com']);
+  });
+
+  it('normalizes single-string cc and bcc to arrays', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'normalize-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      cc: 'cc@example.com',
+      bcc: 'bcc@example.com',
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.cc).toEqual(['cc@example.com']);
+    expect(body.bcc).toEqual(['bcc@example.com']);
+  });
+
+  it('sends with custom headers', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'headers-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      headers: { 'X-Custom-Header': 'custom-value', 'X-Entity-Ref': 'ref-123' },
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.headers).toEqual({
+      'X-Custom-Header': 'custom-value',
+      'X-Entity-Ref': 'ref-123',
+    });
+  });
+
+  it('sends with tags as name/value objects', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'tags-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      tags: [
+        { name: 'category', value: 'transactional' },
+        { name: 'environment', value: 'production' },
+      ],
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.tags).toEqual([
+      { name: 'category', value: 'transactional' },
+      { name: 'environment', value: 'production' },
+    ]);
+  });
+
+  it('sends with attachments and maps contentType to content_type', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'attach-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+      attachments: [
+        {
+          filename: 'report.pdf',
+          content: 'base64content',
+          contentType: 'application/pdf',
+        },
+      ],
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.attachments).toEqual([
+      {
+        filename: 'report.pdf',
+        content: 'base64content',
+        content_type: 'application/pdf',
+      },
+    ]);
+    expect(body.attachments[0]).not.toHaveProperty('contentType');
+  });
+
+  it('omits undefined optional fields from the payload', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'minimal-123' }),
+    });
+
+    const client = new SendKit('sk_test_123');
+    await client.emails.send({
+      from: 'sender@example.com',
+      to: 'recipient@example.com',
+      subject: 'Test',
+      html: '<p>Hi</p>',
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.from).toBe('sender@example.com');
+    expect(body.to).toBe('recipient@example.com');
+    expect(body.subject).toBe('Test');
+    expect(body.html).toBe('<p>Hi</p>');
+    expect(body).not.toHaveProperty('text');
+    expect(body).not.toHaveProperty('cc');
+    expect(body).not.toHaveProperty('bcc');
+    expect(body).not.toHaveProperty('reply_to');
+    expect(body).not.toHaveProperty('headers');
+    expect(body).not.toHaveProperty('tags');
+    expect(body).not.toHaveProperty('scheduled_at');
+    expect(body).not.toHaveProperty('attachments');
+  });
+
   it('uses custom base URL', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

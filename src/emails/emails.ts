@@ -17,13 +17,17 @@ export class Emails {
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
-      cc: payload.cc,
-      bcc: payload.bcc,
+      cc: typeof payload.cc === 'string' ? [payload.cc] : payload.cc,
+      bcc: typeof payload.bcc === 'string' ? [payload.bcc] : payload.bcc,
       reply_to: payload.replyTo,
       headers: payload.headers,
       tags: payload.tags,
       scheduled_at: payload.scheduledAt,
-      attachments: payload.attachments,
+      attachments: payload.attachments?.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+        content_type: a.contentType,
+      })),
     });
   }
 
